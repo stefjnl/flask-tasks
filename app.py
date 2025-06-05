@@ -146,28 +146,40 @@ def filter_tasks(status):
 def debug_db():
     """Debug endpoint to check database connection"""
     try:
-        # Check if tables exist
-        tables = db.engine.table_names()
+        # Check database connection with a simple query
+        db.session.execute(db.text('SELECT 1')).fetchone()
+        
+        # Get table info (updated for newer SQLAlchemy)
+        inspector = db.inspect(db.engine)
+        tables = inspector.get_table_names()
         
         # Count tasks
         task_count = Task.query.count()
         
         # Get database URL (hide password)
         db_url = app.config['SQLALCHEMY_DATABASE_URI']
-        safe_url = db_url.split('@')[-1] if '@' in db_url else 'SQLite local'
+        if '@' in db_url:
+            # Hide password: postgresql://user:password@host/db -> host/db
+            safe_url = db_url.split('@')[-1]
+            db_type = 'PostgreSQL'
+        else:
+            safe_url = 'SQLite local file'
+            db_type = 'SQLite'
         
         return jsonify({
             'database_connected': True,
-            'database_type': 'PostgreSQL' if 'postgresql' in db_url else 'SQLite',
+            'database_type': db_type,
             'database_host': safe_url,
             'tables': tables,
             'task_count': task_count,
-            'tasks': [task.to_dict() for task in Task.query.limit(5).all()]
+            'recent_tasks': [task.to_dict() for task in Task.query.limit(5).all()]
         })
     except Exception as e:
         return jsonify({
             'database_connected': False,
-            'error': str(e)
+            'error': str(e),
+            'database_url_configured': bool(os.environ.get('DATABASE_URL')),
+            'sqlalchemy_uri': app.config['SQLALCHEMY_DATABASE_URI'][:50] + '...' if len(app.config['SQLALCHEMY_DATABASE_URI']) > 50 else app.config['SQLALCHEMY_DATABASE_URI']
         })
 
 if __name__ == '__main__':
