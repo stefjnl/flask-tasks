@@ -18,10 +18,13 @@
         .nav { margin: 20px 0; }
         .nav a { margin-right: 15px; text-decoration: none; color: #007bff; }
         .form-container { background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 10px 0; }
+        .database-indicator { background: #28a745; color: white; padding: 5px 10px; border-radius: 15px; font-size: 12px; margin-bottom: 10px; display: inline-block; }
     </style>
 </head>
 <body>
     <h1>My Task Manager</h1>
+    
+    <div class="database-indicator">✅ Database Connected</div>
     
     <div class="nav">
         <a href="/">All Tasks</a>
@@ -71,9 +74,9 @@
             <small>({{ task.created_at.strftime('%Y-%m-%d %H:%M') }})</small>
             
             {% if not task.completed %}
-                <a href="/complete/{{ loop.index0 }}"><button>✓ Complete</button></a>
+                <a href="/complete/{{ task.id }}"><button>✓ Complete</button></a>
             {% endif %}
-            <a href="/delete/{{ loop.index0 }}" 
+            <a href="/delete/{{ task.id }}" 
                onclick="return confirm('Delete this task?')">
                 <button>🗑 Delete</button>
             </a>
