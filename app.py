@@ -142,6 +142,34 @@ def filter_tasks(status):
     
     return render_template('index.html', tasks=tasks, page_title=title)
 
+@app.route('/debug/db')
+def debug_db():
+    """Debug endpoint to check database connection"""
+    try:
+        # Check if tables exist
+        tables = db.engine.table_names()
+        
+        # Count tasks
+        task_count = Task.query.count()
+        
+        # Get database URL (hide password)
+        db_url = app.config['SQLALCHEMY_DATABASE_URI']
+        safe_url = db_url.split('@')[-1] if '@' in db_url else 'SQLite local'
+        
+        return jsonify({
+            'database_connected': True,
+            'database_type': 'PostgreSQL' if 'postgresql' in db_url else 'SQLite',
+            'database_host': safe_url,
+            'tables': tables,
+            'task_count': task_count,
+            'tasks': [task.to_dict() for task in Task.query.limit(5).all()]
+        })
+    except Exception as e:
+        return jsonify({
+            'database_connected': False,
+            'error': str(e)
+        })
+
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port, debug=False)
