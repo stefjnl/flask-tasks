@@ -1,0 +1,86 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Task Manager</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .task { padding: 10px; border: 1px solid #ddd; margin: 5px 0; border-radius: 5px; }
+        .completed { background-color: #f0f8ff; text-decoration: line-through; }
+        .high-priority { border-left: 4px solid #dc3545; }
+        .normal-priority { border-left: 4px solid #ffc107; }
+        .low-priority { border-left: 4px solid #28a745; }
+        .flash-messages { margin: 10px 0; }
+        .flash-success { color: green; background: #d4edda; padding: 10px; border-radius: 5px; }
+        .flash-error { color: red; background: #f8d7da; padding: 10px; border-radius: 5px; }
+        button { margin: 5px; padding: 5px 10px; cursor: pointer; }
+        input[type="text"] { width: 300px; padding: 8px; }
+        select { padding: 8px; margin: 5px; }
+        .nav { margin: 20px 0; }
+        .nav a { margin-right: 15px; text-decoration: none; color: #007bff; }
+        .form-container { background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <h1>My Task Manager</h1>
+    
+    <div class="nav">
+        <a href="/">All Tasks</a>
+        <a href="/filter/pending">Pending</a>
+        <a href="/filter/completed">Completed</a>
+        <a href="/filter/high">🔥 High Priority</a>
+        <a href="/stats">Statistics</a>
+        <a href="/api/tasks" target="_blank">JSON API</a>
+    </div>
+    
+    <!-- Flash messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flash-messages">
+                {% for category, message in messages %}
+                    <div class="flash-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+    
+    <!-- Add new task form -->
+    <div class="form-container">
+        <h3>Add New Task</h3>
+        <form method="POST" action="/add">
+            <input type="text" name="title" placeholder="Enter a new task..." required>
+            <select name="priority">
+                <option value="low">💤 Low Priority</option>
+                <option value="normal" selected>⭐ Normal Priority</option>
+                <option value="high">🔥 High Priority</option>
+            </select>
+            <button type="submit">Add Task</button>
+        </form>
+    </div>
+    
+    <!-- Task list -->
+    <h2>{{ page_title or 'Tasks' }} ({{ tasks|length }})</h2>
+    {% if tasks %}
+        {% for task in tasks %}
+        <div class="task {{ task.priority }}-priority {% if task.completed %}completed{% endif %}">
+            <strong>{{ task.title }}</strong>
+            <span style="font-size: 1.2em;">
+                {% if task.priority == 'high' %}🔥
+                {% elif task.priority == 'normal' %}⭐
+                {% else %}💤{% endif %}
+            </span>
+            <small>({{ task.created_at.strftime('%Y-%m-%d %H:%M') }})</small>
+            
+            {% if not task.completed %}
+                <a href="/complete/{{ loop.index0 }}"><button>✓ Complete</button></a>
+            {% endif %}
+            <a href="/delete/{{ loop.index0 }}" 
+               onclick="return confirm('Delete this task?')">
+                <button>🗑 Delete</button>
+            </a>
+        </div>
+        {% endfor %}
+    {% else %}
+        <p>No tasks yet. Add one above!</p>
+    {% endif %}
+</body>
+</html>

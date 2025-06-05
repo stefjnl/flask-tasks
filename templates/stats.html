@@ -1,0 +1,45 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Task Statistics</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .stat-card { background: #f8f9fa; padding: 20px; margin: 10px 0; border-radius: 8px; }
+        .stat-number { font-size: 2em; font-weight: bold; color: #007bff; }
+        .progress-bar { background: #e9ecef; height: 20px; border-radius: 10px; overflow: hidden; }
+        .progress-fill { background: #28a745; height: 100%; transition: width 0.3s ease; }
+        .nav { margin: 20px 0; }
+        .nav a { margin-right: 15px; text-decoration: none; color: #007bff; }
+    </style>
+</head>
+<body>
+    <h1>Task Statistics</h1>
+    
+    <div class="nav">
+        <a href="/">← Back to Tasks</a>
+    </div>
+    
+    <div class="stat-card">
+        <h3>Total Tasks</h3>
+        <div class="stat-number">{{ stats.total }}</div>
+    </div>
+    
+    <div class="stat-card">
+        <h3>Completed Tasks</h3>
+        <div class="stat-number">{{ stats.completed }}</div>
+    </div>
+    
+    <div class="stat-card">
+        <h3>Pending Tasks</h3>
+        <div class="stat-number">{{ stats.pending }}</div>
+    </div>
+    
+    <div class="stat-card">
+        <h3>Completion Rate</h3>
+        <div class="stat-number">{{ stats.completion_rate }}%</div>
+        <div class="progress-bar">
+            <div class="progress-fill" style="width: {{ stats.completion_rate }}%"></div>
+        </div>
+    </div>
+</body>
+</html>
